@@ -1,7 +1,7 @@
 import express from 'express';
 import multer from 'multer';
 import { fileURLToPath } from 'url';
-import { dirname, join, extname } from 'path';
+import { dirname, join, extname, resolve } from 'path';
 import { promises as fs } from 'fs';
 import cors from 'cors';
 
@@ -10,7 +10,7 @@ import { parseVerilog } from './src/vProcess.js';
 import { mergeJsonForD3 } from './src/mergeVerilogSdf.js';
 
 export const app = express();
-const PORT = 3001;
+const PORT = 3000;
 
 // Get absolute path
 const __filename = fileURLToPath(import.meta.url);
@@ -235,6 +235,14 @@ app.get('/api/list', async (req, res) => {
     } catch (error) {
         res.status(500).send('Error listing files.');
     }
+});
+
+// Serve static files from the frontend directory
+app.use(express.static(join(__dirname, '../frontend/')));
+
+// Serve the frontend application for all other routes
+app.get('*', (req, res) => {
+    res.sendFile(resolve(__dirname, '../frontend/', 'index.html'));
 });
 
 export const server = app.listen(PORT, () => {});
